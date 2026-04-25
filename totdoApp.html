@@ -1,0 +1,49 @@
+<h1>Todo List</h1>
+<input type="text" id="task" placeholder="enter name">
+<button id="addBtn">Add</button> <br>
+<input type="text" id="search" placeholder="search">
+<button id="click">search</button>
+<ul id="list"></ul>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function render(){
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+    tasks.forEach((task, i)=>{
+        let li = document.createElement("li");
+        li.innerHTML = `${task} 
+             <button onclick="remove(${i})">Delete</button>
+             <button onclick="edit(${i})">Edit</button>`;
+        list.appendChild(li);
+    });
+}
+
+function remove(i){
+    tasks.splice(i,1);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    render();
+}
+
+function edit(i){
+    let newTask = prompt("Edit task:", tasks[i]);
+    if(newTask){
+        tasks[i] = newTask;
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        render();
+    }
+}
+
+document.getElementById("addBtn").addEventListener("click", ()=>{
+    let task = document.getElementById("task").value;
+    if(task){
+        tasks.push(task);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        document.getElementById("task").value="";
+        render();
+    }
+});
+
+render();
+</script>

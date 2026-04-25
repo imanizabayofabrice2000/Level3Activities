@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic JS Demo</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  form { margin-bottom: 20px; }
+  input { display: block; margin: 10px 0; padding: 5px; }
+  button { padding: 5px 10px; margin: 5px 0; }
+  .hidden { display: none; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+  .error { color: red; }
+  .success { color: green; }
+  .shake { animation: shake 0.5s; }
+  @keyframes shake {
+      0% {transform: translateX(0);}
+      25% {transform: translateX(-5px);}
+      50% {transform: translateX(5px);}
+      75% {transform: translateX(-5px);}
+      100% {transform: translateX(0);}
+  }
+</style>
+</head>
+<body>
+
+<h1>Dynamic JS Demo</h1>
+
+<!-- Toggle Forms -->
+<button id="toggleForm">Switch to Register</button>
+
+<!-- Login Form -->
+<form id="loginForm">
+  <h2>Login</h2>
+  <input type="text" id="loginUsername" placeholder="Username" required>
+  <input type="password" id="loginPassword" placeholder="Password" required>
+  <label><input type="checkbox" id="showLoginPass"> Show Password</label>
+  <button type="submit">Login</button>
+  <p id="loginMessage"></p>
+</form>
+
+<!-- Registration Form -->
+<form id="registerForm" class="hidden">
+  <h2>Register</h2>
+  <input type="text" id="regUsername" placeholder="Username" required>
+  <input type="password" id="regPassword" placeholder="Password" required>
+  <label><input type="checkbox" id="showRegPass"> Show Password</label>
+  <button type="submit">Register</button>
+  <p id="regMessage"></p>
+</form>
+
+<!-- Student Management -->
+<div id="studentSection" class="hidden">
+  <h2>Student Management</h2>
+  <input type="text" id="studentName" placeholder="Student Name">
+  <input type="number" id="studentAge" placeholder="Student Age">
+  <button id="addStudentBtn" style="color: rgb(196, 188, 179);">Add Student</button>
+  <table border="2">
+    <style>
+        table{
+            background-color: aqua;
+        }
+    </style>
+    <thead>
+      <tr><th>Name</th><th>Age</th><th>Action</th></tr>
+    </thead>
+    <tbody id="studentList"></tbody>
+  </table>
+  <p id="studentMessage"></p>
+  <button id="logoutBtn">Logout</button>
+</div>
+
+<script>
+// --- Data Storage ---
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let students = JSON.parse(localStorage.getItem("students")) || [];
+
+// --- Form Elements ---
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const toggleFormBtn = document.getElementById("toggleForm");
+
+const loginUsername = document.getElementById("loginUsername");
+const loginPassword = document.getElementById("loginPassword");
+const loginMessage = document.getElementById("loginMessage");
+const showLoginPass = document.getElementById("showLoginPass");
+
+const regUsername = document.getElementById("regUsername");
+const regPassword = document.getElementById("regPassword");
+const regMessage = document.getElementById("regMessage");
+const showRegPass = document.getElementById("showRegPass");
+
+const studentSection = document.getElementById("studentSection");
+const studentName = document.getElementById("studentName");
+const studentAge = document.getElementById("studentAge");
+const addStudentBtn = document.getElementById("addStudentBtn");
+const studentList = document.getElementById("studentList");
+const studentMessage = document.getElementById("studentMessage");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// --- Toggle Forms ---
+toggleFormBtn.addEventListener("click", ()=>{
+    loginForm.classList.toggle("hidden");
+    registerForm.classList.toggle("hidden");
+    toggleFormBtn.innerText = loginForm.classList.contains("hidden") ? "Switch to Login" : "Switch to Register";
+});
+
+// --- Show/Hide Password ---
+showLoginPass.addEventListener("change", ()=> {
+    loginPassword.type = showLoginPass.checked ? "text" : "password";
+});
+showRegPass.addEventListener("change", ()=> {
+    regPassword.type = showRegPass.checked ? "text" : "password";
+});
+
+// --- Registration ---
+registerForm.addEventListener("submit", e=>{
+    e.preventDefault();
+    const username = regUsername.value.trim();
+    const password = regPassword.value.trim();
+    
+    if(users.some(u=>u.username === username)){
+        regMessage.innerText = "Username already exists!";
+        regMessage.className = "error shake";
+        return;
+    }
+    users.push({username, password});
+    localStorage.setItem("users", JSON.stringify(users));
+    regMessage.innerText = "Registration successful!";
+    regMessage.className = "success";
+    regUsername.value = ""; regPassword.value = "";
+});
+
+// --- Login ---
+loginForm.addEventListener("submit", e=>{
+    e.preventDefault();
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value.trim();
+    const user = users.find(u=>u.username===username && u.password===password);
+    if(user){
+        loginMessage.innerText = "Login successful!";
+        loginMessage.className = "success";
+        loginForm.classList.add("hidden");
+        registerForm.classList.add("hidden");
+        toggleFormBtn.classList.add("hidden");
+        studentSection.classList.remove("hidden");
+        renderStudents();
+    } else {
+        loginMessage.innerText = "Invalid credentials!";
+        loginMessage.className = "error shake";
+    }
+});
+
+// --- Logout ---
+logoutBtn.addEventListener("click", ()=>{
+    studentSection.classList.add("hidden");
+    loginForm.classList.remove("hidden");
+    toggleFormBtn.classList.remove("hidden");
+    loginMessage.innerText = "";
+});
+
+// --- Student Management ---
+function renderStudents(){
+    studentList.innerHTML = "";
+    students.forEach((s,i)=>{
+        let tr = document.createElement("tr");
+        tr.innerHTML = `<td>${s.name}</td><td>${s.age}</td>
+                        <td>
+                          <button onclick="editStudent(${i})">Edit</button>
+                          <button onclick="deleteStudent(${i})">Delete</button>
+                        </td>`;
+        studentList.appendChild(tr);
+    });
+    localStorage.setItem("students", JSON.stringify(students));
+}
+
+addStudentBtn.addEventListener("click", ()=>{
+    const name = studentName.value.trim();
+    const age = studentAge.value.trim();
+    if(name === "" || age === ""){
+        studentMessage.innerText = "Please enter name and age";
+        studentMessage.className = "error shake";
+        return;
+    }
+    students.push({name, age:Number(age)});
+    studentName.value = ""; studentAge.value = "";
+    studentMessage.innerText = "Student added successfully!";
+    studentMessage.className = "success";
+    renderStudents();
+});
+
+// --- Edit/Delete Functions ---
+function editStudent(index){
+    const newName = prompt("Edit name:", students[index].name);
+    const newAge = prompt("Edit age:", students[index].age);
+    if(newName && newAge){
+        students[index] = {name:newName, age:Number(newAge)};
+        studentMessage.innerText = "Student updated!";
+        studentMessage.className = "success";
+        renderStudents();
+    }
+}
+
+function deleteStudent(index){
+    if(confirm("Are you sure you want to delete?")){
+        students.splice(index,1);
+        studentMessage.innerText = "Student deleted!";
+        studentMessage.className = "success";
+        renderStudents();
+    }
+}
+</script>
+<style>
+    body{
+        
+background: #b1a5a5;
+        
+    }
+</style>
+</body>
+</html>

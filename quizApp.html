@@ -1,0 +1,39 @@
+<html>
+<h1>JS Quiz</h1>
+<div id="quiz"></div>
+<p id="score"></p>
+
+<script>
+const questions = [
+    {q:"Capital of Rwanda?", options:["Kigali","Nairobi","Kampala","Addis Ababa"], answer:0},
+    {q:"2 + 2?", options:["3","4","5","6"], answer:1},
+    {q:"HTML stands for?", options:["Hyper Text","Hot Text","High Text","Huge Text"], answer:0},
+    {q:"JS is used for?", options:["Style","Structure","Behavior","None"], answer:2},
+    {q:"Rwanda currency?", options:["Dollar","Franc","Euro","Pound"], answer:1}
+];
+
+let current=0, score=0;
+
+function showQuestion(){
+    if(current >= questions.length){
+        document.getElementById("quiz").innerHTML = "Quiz Completed!";
+        document.getElementById("score").innerHTML = `Score: ${score}/${questions.length}`;
+        return;
+    }
+    let q = questions[current];
+    let html = `<h3>${q.q}</h3>`;
+    q.options.forEach((opt,i)=>{
+        html += `<button onclick="check(${i})">${opt}</button>`;
+    });
+    document.getElementById("quiz").innerHTML = html;
+}
+
+function check(i){
+    if(i === questions[current].answer) score++;
+    current++;
+    showQuestion();
+}
+
+showQuestion();
+</script>
+</html>

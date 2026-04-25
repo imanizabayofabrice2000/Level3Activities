@@ -1,0 +1,58 @@
+<html>
+<h1>Student Management</h1>
+<input type="text" id="name" placeholder="Name">
+<input type="number" id="age" placeholder="Age">
+<button id="addStudent">Add Student</button>
+<table border="1">
+<tr><th>Name</th><th>Age</th><th>Action</th></tr>
+<tbody id="studentList"></tbody>
+</table>
+
+<script>
+let students = JSON.parse(localStorage.getItem("students")) || [];
+
+function render(){
+    const list = document.getElementById("studentList");
+    list.innerHTML = "";
+    students.forEach((s,i)=>{
+        let tr = document.createElement("tr");
+        tr.innerHTML = `<td>${s.name}</td><td>${s.age}</td>
+        <td>
+            <button onclick="edit(${i})">Edit</button>
+            <button onclick="remove(${i})">Delete</button>
+        </td>`;
+        list.appendChild(tr);
+    });
+}
+
+function remove(i){
+    students.splice(i,1);
+    localStorage.setItem("students", JSON.stringify(students));
+    render();
+}
+
+function edit(i){
+    let newName = prompt("New Name:", students[i].name);
+    let newAge = prompt("New Age:", students[i].age);
+    if(newName && newAge){
+        students[i] = {name:newName, age:Number(newAge)};
+        localStorage.setItem("students", JSON.stringify(students));
+        render();
+    }
+}
+
+document.getElementById("addStudent").addEventListener("click", ()=>{
+    let name = document.getElementById("name").value;
+    let age = document.getElementById("age").value;
+    if(name && age){
+        students.push({name, age:Number(age)});
+        localStorage.setItem("students", JSON.stringify(students));
+        document.getElementById("name").value="";
+        document.getElementById("age").value="";
+        render();
+    }
+});
+
+render();
+</script>
+</html>

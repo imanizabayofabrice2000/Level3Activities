@@ -1,0 +1,51 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+<p id="demo">welcome to my page</p>
+<script>
+document.getElementById ("demo").innerHTML = "Paragraph changed.";
+</script>
+</head>
+<body>
+    
+    
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+ <input type="text" id="username"
+ placeholder="username" required >
+ <input type="text" id="useremail" 
+ placeholder="useremail" required>
+ <button onClick="click">submit</button>
+    </form>
+    <script>
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+
+onclickform.addEventListener("submit", e=>{
+    e.preventDefault();
+    const username = regUsername.value.trim();
+    const password = regeemail.value.trim();
+
+
+    // Prevent duplicate users
+    if(users.some(u => u.username === usertname)){
+        regMessage.innerText = "Username already exists!";
+        regMessage.className = "error shake";
+        return;
+    } users.push({username, Email});
+    localStorage.setItem("users", JSON.stringify(users)); // save dynamically
+    regMessage.innerText = "Registration successful!";
+    regMessage.className = "success";
+});
+    </script>
+</body>
+</html>
